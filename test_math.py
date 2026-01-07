@@ -1,4 +1,4 @@
-from ecc_math import Point, G, A, B, P
+from ecc_math import Point, G, A, B, P, generate_private_key
 
 # --- UTILITAIRES DE TEST ---
 def is_on_curve(point):
@@ -18,6 +18,9 @@ def assert_test(condition, message):
         exit(1) # On arrête tout si un test échoue
 
 print("--- DÉBUT DES TESTS APPROFONDIS ---")
+
+# 1. Tests Mathématiques de base
+# -----------------------------
 
 # Tous les points générés doivent être sur la courbe
 point_test = G * 10
@@ -68,5 +71,34 @@ print(f"L'ordre du groupe généré par G est : {order}")
 # 8. TEST DU GRAND NOMBRE (SCALAIRE)
 p_cycle = G * (order + 1)
 assert_test(p_cycle == G, f"Cyclicité : G * (Ordre + 1) revient bien au départ ({G})")
+
+#  Tests de Génération de Clés (Stress Test)
+def run_keygen_test():
+    print("\n--- TEST DE GÉNÉRATION DE CLÉS ---")
+    
+    k = generate_private_key()
+    print(f"[INFO] Exemple de clé générée : {k}")
+    
+    if k < 1 or k > 1000:
+        print("[ERREUR] La clé est hors limites (1-1000)")
+        exit(1)
+    
+    print("[INFO] Lancement du Stress Test (1000 tentatives)...")
+    
+    for i in range(1000):
+        k = generate_private_key()
+        
+        if k % 4 == 0:
+            print(f"[FATAL] Échec au tour {i} : La clé {k} est un multiple de 4 !")
+            exit(1)
+            
+        public_key = G * k
+        if public_key.is_infinity:
+            print(f"[FATAL] Échec au tour {i} : La clé {k} génère le point Infini !")
+            exit(1)
+
+    print("[SUCCÈS] 1000 clés générées. Aucune n'était un multiple de 4.")
+
+run_keygen_test()
 
 print("\n--- TOUS LES TESTS SONT PASSÉS AVEC SUCCÈS ! ---")

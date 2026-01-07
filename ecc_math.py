@@ -1,3 +1,4 @@
+import secrets
 A = 35
 B = 3
 P = 101
@@ -81,3 +82,17 @@ class Point:
         return self.__str__()
 
 G = Point(2, 9)
+def generate_private_key():
+    """
+    Génère une clé privée aléatoire entre 1 et 1000.
+    Garantit que la clé est valide (pas un multiple de l'ordre 4).
+    """
+    while True:
+        k = secrets.randbelow(1000) + 1
+        
+        public_key = G * k
+        
+        if public_key.is_infinity:
+            continue
+            
+        return k
