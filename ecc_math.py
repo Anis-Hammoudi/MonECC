@@ -89,9 +89,7 @@ def generate_private_key():
     """
     while True:
         k = secrets.randbelow(1000) + 1
-        
         public_key = G * k
-        
         if public_key.is_infinity:
             continue
             
