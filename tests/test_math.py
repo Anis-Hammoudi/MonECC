@@ -85,9 +85,7 @@ def run_keygen_test():
     if k < 1 or k > 1000:
         print("[ERREUR] La clé est hors limites (1-1000)")
         exit(1)
-    
-    print("[INFO] Lancement du Stress Test (1000 tentatives)...")
-    
+        
     for i in range(1000):
         k = generate_private_key()
         
