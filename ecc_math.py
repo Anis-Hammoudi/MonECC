@@ -88,7 +88,7 @@ def generate_private_key():
     Garantit que la clé est valide (pas un multiple de l'ordre 4).
     """
     while True:
-        k = secrets.randbelow(1000) + 1
+        k = generate_private_key()
         
         public_key = G * k
         

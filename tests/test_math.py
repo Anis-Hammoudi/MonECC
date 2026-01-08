@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(".."))
 from ecc_math import Point, G, A, B, P, generate_private_key
 
 # --- UTILITAIRES DE TEST ---
