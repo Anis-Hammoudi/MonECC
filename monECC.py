@@ -172,33 +172,67 @@ Switchs facultatifs :
 
 
 def main():
-    if len(sys.argv) < 2 or sys.argv[1].lower() == "help":
-        show_help()
+    parser = argparse.ArgumentParser(
+        description="Script monECC par Anis et Sanaa",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # --- Commande KEYGEN ---
+    p_keygen = subparsers.add_parser("keygen", help="Génère une paire de clés")
+    p_keygen.add_parser_init = p_keygen 
+    p_keygen.add_argument("-f", "--filename", default="monECC", help="Nom de base des fichiers clés")
+    p_keygen.add_argument("-s", "--size", type=int, default=1000, help="Plage d'aléa (1 à size)")
+    p_keygen.set_defaults(func=command_keygen)
+
+    # --- Commande CRYPT ---
+    p_crypt = subparsers.add_parser("crypt", help="Chiffre un message")
+    p_crypt.add_argument("key", help="Fichier de clé publique")
+    p_crypt.add_argument("text", nargs="?", help="Texte à chiffrer (ou ignoré si -i)")
+    p_crypt.add_argument("-i", "--input", help="Fichier contenant le texte à chiffrer")
+    p_crypt.add_argument("-o", "--output", help="Fichier de sortie")
+    p_crypt.set_defaults(func=command_crypt)
+
+    # --- Commande DECRYPT ---
+    p_decrypt = subparsers.add_parser("decrypt", help="Déchiffre un message")
+    p_decrypt.add_argument("key", help="Fichier de clé privée")
+    p_decrypt.add_argument("text", nargs="?", help="Texte chiffré (ou ignoré si -i)")
+    p_decrypt.add_argument("-i", "--input", help="Fichier contenant le texte chiffré")
+    p_decrypt.add_argument("-o", "--output", help="Fichier de sortie")
+    p_decrypt.set_defaults(func=command_decrypt)
+
+    # --- Commande HELP ---
+    p_help = subparsers.add_parser("help", help="Affiche ce manuel")
+    
+    # Analyse des arguments
+    if len(sys.argv) == 1:
+        parser.print_help()
         return
 
-    cmd = sys.argv[1].lower()
+    args = parser.parse_args()
 
-    if cmd == "keygen":
-        keygen_command()  # tu peux passer des noms de fichiers si tu veux
-    elif cmd == "crypt":
-        if len(sys.argv) < 4:
-            print("Erreur : crypt nécessite <fichier_pub> <texte>")
+    if args.command == "help":
+        parser.print_help()
+        return
+
+    # Gestion du switch -i (Input file) pour crypt/decrypt
+    if args.command in ["crypt", "decrypt"]:
+        if args.input:
+            if not os.path.exists(args.input):
+                print(f"Erreur: Le fichier d'entrée {args.input} n'existe pas.")
+                return
+            with open(args.input, "r") as f:
+                args.text = f.read().strip()
+        elif not args.text:
+            print("Erreur: Vous devez fournir un texte ou un fichier d'entrée (-i).")
             return
-        pub_file = sys.argv[2]
-        texte = sys.argv[3]
-        ciphertext = crypt_command(pub_file, texte)
-        print("Texte chiffré :", ciphertext)
-    elif cmd == "decrypt":
-        if len(sys.argv) < 4:
-            print("Erreur : decrypt nécessite <fichier_priv> <texte_chiffré>")
-            return
-        priv_file = sys.argv[2]
-        cipher_input = sys.argv[3]
-        decrypted = decrypt_command(priv_file, cipher_input)
-        print("Texte déchiffré :", decrypted)
-    else:
-        print(f"Commande inconnue : {cmd}")
-        show_help()
+
+    # Appel de la fonction associée
+    if hasattr(args, 'func'):
+        try:
+            args.func(args)
+        except Exception as e:
+            print(f"Une erreur est survenue : {e}")
 
 if __name__ == "__main__":
     main()

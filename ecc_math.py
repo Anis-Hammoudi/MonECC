@@ -1,4 +1,5 @@
 import secrets
+import random
 A = 35
 B = 3
 P = 101
@@ -88,8 +89,7 @@ def generate_private_key():
     Garantit que la clé est valide (pas un multiple de l'ordre 4).
     """
     while True:
-        k = generate_private_key()
-        
+        k = random.randint(1, 1000)
         public_key = G * k
         
         if public_key.is_infinity:

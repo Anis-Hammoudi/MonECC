@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append(os.path.abspath(".."))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from ecc_math import Point, G, A, B, P, generate_private_key
 
 # --- UTILITAIRES DE TEST ---
